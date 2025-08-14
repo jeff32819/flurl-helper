@@ -33,7 +33,7 @@ Console.WriteLine();
 
 var test = headers.ToSearchableDictionary();
 var value = test.Lookup("Remaining-Requests");
-Console.WriteLine(value.ValueJoined);
+Console.WriteLine(value.ValueAsString);
 Console.WriteLine(value.ValueAsBool);
 Console.WriteLine(value.ValueAsInt);
 Console.WriteLine();

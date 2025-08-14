@@ -22,22 +22,22 @@ namespace FlurlHelper
                 {
                     Found = false,
                     Values = values,
-                    ValueJoined = string.Join(delimiter, values)
+                    ValueAsString = string.Join(delimiter, values)
                 };
             }
             return new LookupResult
             {
                 Found = true,
                 Values = [],
-                ValueJoined = string.Empty
+                ValueAsString = string.Empty
             };
         }
         public class LookupResult
         {
             public bool Found { get; set; }
-            public int ValueAsInt => int.TryParse(ValueJoined, out var result) ? result : 0;
-            public bool ValueAsBool => bool.TryParse(ValueJoined, out var result) && result;
-            public string ValueJoined { get; set; } = string.Empty;
+            public int ValueAsInt => int.TryParse(ValueAsString, out var result) ? result : 0;
+            public bool ValueAsBool => bool.TryParse(ValueAsString, out var result) && result;
+            public string ValueAsString { get; set; } = string.Empty;
             public List<string> Values { get; set; } = [];
         }
     }
