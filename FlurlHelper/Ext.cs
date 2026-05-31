@@ -1,21 +1,23 @@
 ﻿using Flurl.Util;
 
-namespace FlurlHelper;
-
-public static class Ext
+namespace FlurlHelper
 {
-    /// <summary>
-    /// Converts the response headers into a dictionary with searchable keys and list of values.
-    /// </summary>
-    /// <param name="headers"></param>
-    /// <returns></returns>
-    public static HeaderList ToSearchableDictionary(this IReadOnlyNameValueList<string> headers)
+    public static class Ext
     {
-        var arr = new HeaderList();
-        foreach (var (name, value) in headers)
+        /// <summary>
+        ///     Converts the response headers into a dictionary with searchable keys and list of values.
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        public static HeaderList ToSearchableDictionary(this IReadOnlyNameValueList<string> headers)
         {
-            arr.Add(name, value);
+            var arr = new HeaderList();
+            foreach (var (name, value) in headers)
+            {
+                arr.Add(name, value);
+            }
+
+            return arr;
         }
-        return arr;
     }
 }
