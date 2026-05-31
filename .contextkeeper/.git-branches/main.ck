@@ -15,9 +15,9 @@
         {
           "Documents": [
             {
-              "FilePath": "V:\\GitHub\\Jeff32819\\flurl-helper\\ConsoleApp1\\Program.cs",
-              "RelativePath": "..\\..\\ConsoleApp1\\Program.cs",
-              "FullName": "Program.cs",
+              "FilePath": "V:\\GitHub\\Jeff32819\\flurl-helper\\FlurlHelper\\FluentApiBuilder.cs",
+              "RelativePath": "..\\..\\FlurlHelper\\FluentApiBuilder.cs",
+              "FullName": "FluentApiBuilder.cs",
               "DockedHeight": {
                 "UnitType": "Stretch",
                 "Value": 200
@@ -26,8 +26,24 @@
                 "UnitType": "Stretch",
                 "Value": 195
               },
-              "Line": 30,
-              "Column": 21,
+              "Line": 14,
+              "Column": 34,
+              "IsPinned": false
+            },
+            {
+              "FilePath": "V:\\GitHub\\Jeff32819\\flurl-helper\\ReadMe.md",
+              "RelativePath": "..\\..\\ReadMe.md",
+              "FullName": "ReadMe.md",
+              "DockedHeight": {
+                "UnitType": "Stretch",
+                "Value": 200
+              },
+              "DockedWidth": {
+                "UnitType": "Stretch",
+                "Value": 195
+              },
+              "Line": 6,
+              "Column": 34,
               "IsPinned": false,
               "IsActive": true,
               "IsSelected": true
