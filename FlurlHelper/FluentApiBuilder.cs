@@ -3,150 +3,154 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+
 using Flurl.Http;
+
 using Newtonsoft.Json;
+
 using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FlurlHelper
 {
-    public class FluentApiBuilder
+
+    public class FluentApiBuilder(string baseUrl)
     {
-        private readonly string _baseUrl;
-
-        // This dictionary holds your headers until execution.
-        // We use StringComparer.OrdinalIgnoreCase because HTTP headers are case-insensitive!
+        private readonly string _baseUrl = baseUrl.TrimEnd('/');
         private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, string> _payload = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private string _path;
 
-        public FluentApiBuilder(string baseUrl)
-        {
-            _baseUrl = baseUrl;
-        }
+        // UPGRADE: Changed from <string, string> to <string, object> to preserve integers and booleans in JSON bodies
+        private readonly Dictionary<string, object> _payload = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        // 1. Replace PathSegmentBuilder with a native List
+        private readonly List<object> _pathSegments = new List<object>();
 
-        // 2. Fluent method for the Endpoint
-        public FluentApiBuilder AddPath(string path)
+        // 2. The streamlined fluent method
+        public FluentApiBuilder AppendPath(params object[] segments)
         {
-            _path = path;
+            _pathSegments.AddRange(segments);
             return this;
         }
 
-        public FluentApiBuilder AddParam(string key, string value)
+
+        // UPGRADE: Accept object so you can pass ints, bools, etc.
+        public FluentApiBuilder AddParam(string key, object value)
         {
             _payload[key] = value;
             return this;
         }
-
-
-        // 3. Fluent method to attach your Model
+        public FluentApiBuilder WithBearerToken(string token)
+        {
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                _headers["Authorization"] = $"Bearer {token}";
+            }
+            return this;
+        }
         public FluentApiBuilder WithData<TRequest>(TRequest data)
         {
-            if (data == null)
-            {
-                return this;
-            }
+            if (data == null) return this;
 
             var options = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
             var jsonString = JsonSerializer.Serialize(data, options);
             var dataDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString);
 
-            if (dataDict == null)
-            {
-                return this;
-            }
+            if (dataDict == null) return this;
 
             foreach (var kvp in dataDict)
             {
-                _payload[kvp.Key] = kvp.Value.ToString();
+                // UPGRADE: Safely unwrap JsonElement to native types instead of forcing .ToString()
+                _payload[kvp.Key] = kvp.Value.ValueKind switch
+                {
+                    JsonValueKind.Number => kvp.Value.GetDouble(),
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    _ => kvp.Value.ToString()
+                };
             }
 
             return this;
         }
 
-        // 1. Method to add a single header
         public FluentApiBuilder WithHeader(string name, string value)
         {
-            // Using the indexer [] ensures that if the header already exists, it updates it.
-            // If you used .Add(), it would throw an error on duplicates.
             _headers[name] = value;
-
-            // Returning 'this' is the magic that makes it fluent
             return this;
         }
 
-        // 2. Method to add multiple headers from another dictionary
         public FluentApiBuilder WithHeaders(IDictionary<string, string> headersToAdd)
         {
-            if (headersToAdd == null)
-            {
-                return this;
-            }
-
-            foreach (var kvp in headersToAdd)
-            {
-                _headers[kvp.Key] = kvp.Value;
-            }
-
+            if (headersToAdd == null) return this;
+            foreach (var kvp in headersToAdd) _headers[kvp.Key] = kvp.Value;
             return this;
         }
 
-        public async Task<string> ExecuteGetAsync()
+        // UPGRADE: Added CancellationTokens to execution methods
+        public async Task<string> ExecuteGetAsync(CancellationToken ct = default)
         {
-            return await ExecuteCoreAsync(req => req.SetQueryParams(_payload).GetAsync());
+            // FIX: Add 'cancellationToken:' before 'ct'
+            return await ExecuteCoreAsync(req => req.SetQueryParams(_payload).GetAsync(cancellationToken: ct));
+        }
+        public async Task<TResponse> ExecuteGetAsync<TResponse>(CancellationToken ct = default)
+        {
+            return Deserialize<TResponse>(await ExecuteGetAsync(ct));
         }
 
-        public async Task<TResponse> ExecuteGetAsync<TResponse>()
+        public async Task<string> ExecutePostJsonAsync(CancellationToken ct = default)
         {
-            return Deserialize<TResponse>(await ExecuteGetAsync());
+            return await ExecuteCoreAsync(req => req.PostJsonAsync(_payload, cancellationToken: ct));
         }
 
-        public async Task<string> ExecutePostJsonAsync()
+        public async Task<string> ExecutePostUrlEncodedAsync(CancellationToken ct = default)
         {
-            return await ExecuteCoreAsync(req => req.PostJsonAsync(_payload));
+            return await ExecuteCoreAsync(req => req.PostUrlEncodedAsync(_payload, cancellationToken: ct));
         }
 
-        public async Task<string> ExecutePostUrlEncodedAsync()
+        public async Task<TResponse> ExecutePostJsonAsync<TResponse>(CancellationToken ct = default)
         {
-            return await ExecuteCoreAsync(req => req.PostUrlEncodedAsync(_payload));
+            return Deserialize<TResponse>(await ExecutePostJsonAsync(ct));
         }
 
-        public async Task<TResponse> ExecutePostJsonAsync<TResponse>()
+        public async Task<TResponse> ExecutePostUrlEncodedAsync<TResponse>(CancellationToken ct = default)
         {
-            return Deserialize<TResponse>(await ExecutePostJsonAsync());
+            return Deserialize<TResponse>(await ExecutePostUrlEncodedAsync(ct));
         }
 
-        public async Task<TResponse> ExecutePostUrlEncodedAsync<TResponse>()
-        {
-            return Deserialize<TResponse>(await ExecutePostUrlEncodedAsync());
-        }
-
-
-        // Centralized Flurl pipeline
+        // UPGRADE: Centralized FlurlHttpException handling
         private async Task<string> ExecuteCoreAsync(Func<IFlurlRequest, Task<IFlurlResponse>> postAction)
         {
             var request = _baseUrl
                 .WithHeaders(_headers)
-                .AppendPathSegment(_path);
+                .AppendPathSegments(_pathSegments);
 
-            // Execute whichever Flurl method was passed in
-            var response = await postAction(request);
+            try
+            {
+                var response = await postAction(request);
+                var rawJson = await response.GetStringAsync();
+                Debug.Print($"RAW API RESPONSE [{request.Url}] --------------------------------");
+                Debug.Print(rawJson);
 
-            var rawJson = await response.GetStringAsync();
-
-            Debug.Print($"RAW API RESPONSE [{_path}] --------------------------------");
-            Debug.Print(rawJson);
-
-            return rawJson;
+                return rawJson;
+            }
+            catch (FlurlHttpException ex)
+            {
+                // Extract the actual error message from the API before throwing
+                var errorBody = await ex.GetResponseStringAsync();
+                Debug.Print($"API ERROR [{request.Url}]: {errorBody}");
+                throw;
+            }
         }
 
-        // Centralized JSON Parsing
+        // UPGRADE: Standardized on System.Text.Json to match your WithData method
         private TResponse Deserialize<TResponse>(string rawJson)
         {
             try
             {
-                return JsonConvert.DeserializeObject<TResponse>(rawJson);
+                return JsonSerializer.Deserialize<TResponse>(rawJson, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
             }
             catch (JsonException ex)
             {

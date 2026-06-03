@@ -10,8 +10,8 @@ using FlurlHelper;
 
 
 
-var api = await new FlurlHelper.FluentApiBuilder("https://api.jeff32819.dev")
-    .AddPath("api/cloudns/zones")
+var api = await new FluentApiBuilder("https://api.jeff32819.dev")
+    .AppendPath("api/cloudns/zones")
     .WithHeader("X-API-Key", "FirstDotNetCoreApiWithKey")
     .ExecuteGetAsync();
 
