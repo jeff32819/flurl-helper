@@ -2,11 +2,18 @@
 using FlurlHelper;
 
 
-var api = await new FluentApiBuilder("https://ssl-verify.jeff32819.dev")
-    .SetPath("api/verify")
-    .WithHeader("X-Api-Key", "81183BA8A6744B43A127472FE6813DDE")
-    .WithData(new { domainName = "jeffmathews.com", forceUpdateIfOlderThanDays = 0 })
-    .ExecutePostJsonAsync();
+//var api = await new FluentApiBuilder("https://ssl-verify.jeff32819.dev")
+//    .SetPath("api/verify")
+//    .WithHeader("X-Api-Key", "81183BA8A6744B43A127472FE6813DDE")
+//    .WithData(new { domainName = "jeffmathews.com", forceUpdateIfOlderThanDays = 0 })
+//    .ExecutePostJsonAsync();
+
+
+
+var api = await new FlurlHelper.FluentApiBuilder("https://api.jeff32819.dev")
+    .AddPath("api/cloudns/zones")
+    .WithHeader("X-API-Key", "FirstDotNetCoreApiWithKey")
+    .ExecuteGetAsync();
 
 Console.WriteLine(api);
 

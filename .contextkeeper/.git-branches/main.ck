@@ -6,14 +6,30 @@
       "WindowType": "MainWindow",
       "WindowState": "Maximized",
       "Window": {
-        "Left": 0,
-        "Top": 0,
-        "Width": 2560,
-        "Height": 1410
+        "Left": 2560,
+        "Top": 305,
+        "Width": 1920,
+        "Height": 1050
       },
       "Docks": [
         {
           "Documents": [
+            {
+              "FilePath": "C:\\Users\\Jeff\\AppData\\Local\\Temp\\.vsdbgsrc\\905254a50be28200641dbea6ae3524e56c97fe8b3402e973c8ea2de6e8f5a615\\FlurlClient.cs",
+              "RelativePath": "C:\\Users\\Jeff\\AppData\\Local\\Temp\\.vsdbgsrc\\905254a50be28200641dbea6ae3524e56c97fe8b3402e973c8ea2de6e8f5a615\\FlurlClient.cs",
+              "FullName": "FlurlClient.cs",
+              "DockedHeight": {
+                "UnitType": "Stretch",
+                "Value": 200
+              },
+              "DockedWidth": {
+                "UnitType": "Stretch",
+                "Value": 195
+              },
+              "Line": 301,
+              "Column": 10,
+              "IsPinned": false
+            },
             {
               "FilePath": "V:\\GitHub\\Jeff32819\\flurl-helper\\FlurlHelper\\FluentApiBuilder.cs",
               "RelativePath": "..\\..\\FlurlHelper\\FluentApiBuilder.cs",
@@ -26,14 +42,22 @@
                 "UnitType": "Stretch",
                 "Value": 195
               },
-              "Line": 14,
-              "Column": 34,
+              "Line": 29,
+              "Column": 1,
+              "Breakpoints": [
+                {
+                  "IsEnabled": true,
+                  "Line": 134,
+                  "Condition": "",
+                  "ConditionType": "WhenTrue"
+                }
+              ],
               "IsPinned": false
             },
             {
-              "FilePath": "V:\\GitHub\\Jeff32819\\flurl-helper\\ReadMe.md",
-              "RelativePath": "..\\..\\ReadMe.md",
-              "FullName": "ReadMe.md",
+              "FilePath": "V:\\GitHub\\Jeff32819\\flurl-helper\\ConsoleApp1\\Program.cs",
+              "RelativePath": "..\\..\\ConsoleApp1\\Program.cs",
+              "FullName": "Program.cs",
               "DockedHeight": {
                 "UnitType": "Stretch",
                 "Value": 200
@@ -42,8 +66,16 @@
                 "UnitType": "Stretch",
                 "Value": 195
               },
-              "Line": 6,
-              "Column": 34,
+              "Line": 13,
+              "Column": 18,
+              "Breakpoints": [
+                {
+                  "IsEnabled": true,
+                  "Line": 40,
+                  "Condition": "",
+                  "ConditionType": "WhenTrue"
+                }
+              ],
               "IsPinned": false,
               "IsActive": true,
               "IsSelected": true
